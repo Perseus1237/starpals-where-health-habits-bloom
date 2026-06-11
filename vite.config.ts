@@ -5,5 +5,6 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  base: "/starpals-where-health-habits-bloom/",
   plugins: [tanstackStart(), react(), tsconfigPaths(), tailwindcss()],
 });
