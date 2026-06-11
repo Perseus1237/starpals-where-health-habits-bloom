@@ -40,7 +40,7 @@ function Landing() {
           StarPals turns daily care routines into a magical pet world. Brave kids, tiny creatures, and a sky that grows brighter together.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+        <div className="flex flex-col gap-3 items-center justify-center">
           {pet ? (
             <button onClick={() => navigate({ to: "/home" })} className="btn-magical">
               Visit {pet.name} →
@@ -50,9 +50,14 @@ function Landing() {
               Begin ✨
             </Link>
           )}
-          <Link to="/parent" className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
-            For parents & caregivers
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            <Link to="/parent" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+              For parents & caregivers
+            </Link>
+            <Link to="/care-plan" className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline">
+              Care management team
+            </Link>
+          </div>
         </div>
 
         <div className="mt-16 grid grid-cols-3 gap-4 text-left">
