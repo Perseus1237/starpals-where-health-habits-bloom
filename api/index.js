@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -8,8 +9,24 @@ let serverHandler = null;
 
 async function getServerHandler() {
   if (!serverHandler) {
-    const serverModule = await import(resolve(__dirname, '../dist/server/server.js'));
-    serverHandler = serverModule.default;
+    try {
+      // Try to import the server from dist/server/server.js
+      const serverPath = join(__dirname, '..', 'dist', 'server', 'server.js');
+      
+      if (!existsSync(serverPath)) {
+        throw new Error(`Server file not found at ${serverPath}`);
+      }
+      
+      const serverModule = await import(serverPath);
+      serverHandler = serverModule.default;
+      
+      if (!serverHandler) {
+        throw new Error('No default export found in server module');
+      }
+    } catch (error) {
+      console.error('Failed to load server handler:', error);
+      throw error;
+    }
   }
   return serverHandler;
 }
