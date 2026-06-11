@@ -89,57 +89,12 @@ function Parent() {
     approveReviewQuest,
     rejectReviewQuest,
   } = useStarPals();
-  const [unlocked, setUnlocked] = useState(false);
-  const [answer, setAnswer] = useState("");
   const [controls, setControls] = useState({
     bedtimeReminder: true,
     weeklyRecap: true,
     symptomNudge: false,
     aiSuggestions: true,
   });
-
-  if (!unlocked) {
-    return (
-      <main className="min-h-screen flex items-center justify-center px-6">
-        <div className="glass-card rounded-3xl p-8 max-w-sm w-full text-center">
-          <div className="text-4xl mb-3">🔒</div>
-          <h1 className="font-display text-2xl mb-1">Parent space</h1>
-          <p className="text-sm text-muted-foreground mb-5">
-            A small math check, just for grown-ups.
-          </p>
-          <div className="text-lg mb-3">
-            What is <span className="font-bold">3 + 4</span>?
-          </div>
-          <input
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            inputMode="numeric"
-            className="w-full rounded-2xl bg-white/10 border border-white/20 px-5 py-3 text-center text-lg focus:outline-none focus:ring-2 focus:ring-stardust"
-          />
-          <button
-            onClick={() => answer.trim() === "7" && setUnlocked(true)}
-            className="btn-magical w-full mt-4"
-          >
-            Continue
-          </button>
-          <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
-            {pet ? (
-              <Link to="/home" className="hover:underline">
-                Back to {pet.name}
-              </Link>
-            ) : (
-              <Link to="/" className="hover:underline">
-                Back to opening
-              </Link>
-            )}
-            <Link to="/care-plan" className="hover:underline">
-              Care team demo
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   const displayPet = pet ?? DEMO_PET;
   const displayChild = childName || "Maya";
