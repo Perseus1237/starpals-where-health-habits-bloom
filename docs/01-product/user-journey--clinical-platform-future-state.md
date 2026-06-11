@@ -8,9 +8,9 @@ The journey keeps one principle constant: StarPals should feel like play to the 
 
 ## Source Inputs
 
-- `StarPals_PRD.v.2.md`: child-native golden path, Care Cards, StarPal companion loop, parent recap, safety rules, and visual/interaction principles.
-- `deep-research-report.md`: business thesis, clinical need, adherence gap, social isolation, provider/payer opportunity, and B2B2C go-to-market.
-- `advanced backlog.md`: clinical-ready roadmap, FHIR and SMART on FHIR integrations, Epic/MyChart and Oracle Health tracks, wearable/device backlog, AI agents, compliance, security, and enterprise platform requirements.
+- [Product Requirements: Hackathon PRD v2](product-requirements--hackathon-prd-v2.md): child-native golden path, Care Cards, StarPal companion loop, parent recap, safety rules, and visual/interaction principles.
+- [Business Analysis: YC Style](../02-research/business-analysis--yc-style.md): business thesis, clinical need, adherence gap, social isolation, provider/payer opportunity, and B2B2C go-to-market.
+- [Advanced Clinical Platform Backlog](../03-roadmap/backlog--advanced-clinical-platform.md): clinical-ready roadmap, FHIR and SMART on FHIR integrations, Epic/MyChart and Oracle Health tracks, wearable/device backlog, AI agents, compliance, security, and enterprise platform requirements.
 
 ## Future State North Star
 
