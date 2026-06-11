@@ -13,6 +13,7 @@ This repository contains a working TanStack Start demo plus a structured product
 - [Product Concept](#product-concept)
 - [Who StarPals Serves](#who-starpals-serves)
 - [Current Demo](#current-demo)
+- [Hackathon Judge Path](#hackathon-judge-path)
 - [Technical Architecture](#technical-architecture)
 - [Repository Structure](#repository-structure)
 - [Getting Started](#getting-started)
@@ -31,12 +32,12 @@ Pediatric chronic care has a daily execution problem. Care plans are written for
 
 StarPals reframes the daily care loop:
 
-| Old framing | StarPals framing |
-| --- | --- |
-| "Take your medicine." | "Power up your StarPal before breakfast." |
-| "Did you do your breathing exercise?" | "Call a meadow breeze together." |
-| "Track your symptoms." | "Paint today's mood sky." |
-| "Adherence dashboard." | "Calm parent recap and provider-ready trend signal." |
+| Old framing                           | StarPals framing                                     |
+| ------------------------------------- | ---------------------------------------------------- |
+| "Take your medicine."                 | "Power up your StarPal before breakfast."            |
+| "Did you do your breathing exercise?" | "Call a meadow breeze together."                     |
+| "Track your symptoms."                | "Paint today's mood sky."                            |
+| "Adherence dashboard."                | "Calm parent recap and provider-ready trend signal." |
 
 The larger company thesis is that StarPals can become the child engagement operating system for pediatric care plans: a cross-condition layer that translates approved care routines into child-safe quests, story progress, caregiver visibility, and care-team summaries.
 
@@ -48,13 +49,13 @@ Children with chronic or special health needs often carry recurring routines acr
 
 The market opportunity exists because the current landscape is fragmented:
 
-| Category | What it solves | What remains unsolved |
-| --- | --- | --- |
-| Adult adherence apps | Medication reminders, refill prompts, patient support | Not child-native, weak emotional loop, limited parent-child fit |
-| Disease-specific tools | Condition education and tracking | Narrow scope, duplicated UX, uneven engagement |
-| Child wellness games | Motivation and play | Usually disconnected from care plans and clinical workflows |
-| Hospital child-life programs | Trust, comfort, play, in-person support | Hard to extend into daily home routines |
-| Provider portals | Clinical records and messaging | Not built for child behavior change |
+| Category                     | What it solves                                        | What remains unsolved                                           |
+| ---------------------------- | ----------------------------------------------------- | --------------------------------------------------------------- |
+| Adult adherence apps         | Medication reminders, refill prompts, patient support | Not child-native, weak emotional loop, limited parent-child fit |
+| Disease-specific tools       | Condition education and tracking                      | Narrow scope, duplicated UX, uneven engagement                  |
+| Child wellness games         | Motivation and play                                   | Usually disconnected from care plans and clinical workflows     |
+| Hospital child-life programs | Trust, comfort, play, in-person support               | Hard to extend into daily home routines                         |
+| Provider portals             | Clinical records and messaging                        | Not built for child behavior change                             |
 
 StarPals sits between these categories. It is not trying to replace the EMR, the clinician, the caregiver, or the disease-specific care team. It is trying to own the last mile between the care plan and the child's daily life.
 
@@ -82,16 +83,16 @@ Core design principles:
 
 ## Who StarPals Serves
 
-| Persona | Need | StarPals value |
-| --- | --- | --- |
-| Child, age 7-13 | Feel capable, normal, and emotionally supported | Daily care becomes pet care, story, mastery, and belonging |
-| Teen user | Build self-management while preserving privacy | Age-aware routines, controlled sharing, and nonjudgmental reflection |
-| Parent or guardian | Reduce conflict and know what happened | Calm visibility, routine support, consent control, and summaries |
-| Secondary caregiver | Help during school, travel, weekends, or bedtime | Limited delegated access without overexposing private data |
-| Provider | Understand what happens between visits | Trend summaries, exceptions, and care-plan engagement signal |
-| Care coordinator | Manage cohort exceptions | Missed routines, upcoming tasks, and review queues |
-| Clinic admin | Deploy safely | Roles, templates, tenant settings, consent, and integration controls |
-| Payer or sponsor | Prove program value | Engagement, adherence lift, retention, and caregiver burden metrics |
+| Persona             | Need                                             | StarPals value                                                       |
+| ------------------- | ------------------------------------------------ | -------------------------------------------------------------------- |
+| Child, age 7-13     | Feel capable, normal, and emotionally supported  | Daily care becomes pet care, story, mastery, and belonging           |
+| Teen user           | Build self-management while preserving privacy   | Age-aware routines, controlled sharing, and nonjudgmental reflection |
+| Parent or guardian  | Reduce conflict and know what happened           | Calm visibility, routine support, consent control, and summaries     |
+| Secondary caregiver | Help during school, travel, weekends, or bedtime | Limited delegated access without overexposing private data           |
+| Provider            | Understand what happens between visits           | Trend summaries, exceptions, and care-plan engagement signal         |
+| Care coordinator    | Manage cohort exceptions                         | Missed routines, upcoming tasks, and review queues                   |
+| Clinic admin        | Deploy safely                                    | Roles, templates, tenant settings, consent, and integration controls |
+| Payer or sponsor    | Prove program value                              | Engagement, adherence lift, retention, and caregiver burden metrics  |
 
 ## Current Demo
 
@@ -99,13 +100,13 @@ The current app demonstrates the complete product narrative across child, parent
 
 ### Routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Landing experience and product positioning |
-| `/onboarding` | Child profile and StarPal selection flow |
-| `/home` | Child habitat, Care Cards, Stardust, community quest, mood sky, and story unlock |
-| `/parent` | Parent dashboard with calm recap, plan status, care-team notes, and AI review queue |
-| `/care-plan` | Care-plan builder showing FHIR, Epic MyChart, Oracle Health, parent review, and AI draft concepts |
+| Route         | Purpose                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| `/`           | Landing experience and product positioning                                                        |
+| `/onboarding` | Child profile and StarPal selection flow                                                          |
+| `/home`       | Child habitat, Care Cards, Stardust, community quest, mood sky, and story unlock                  |
+| `/parent`     | Parent dashboard with calm recap, plan status, care-team notes, and AI review queue               |
+| `/care-plan`  | Care-plan builder showing FHIR, Epic MyChart, Oracle Health, parent review, and AI draft concepts |
 
 ### Child Experience
 
@@ -150,24 +151,40 @@ The care-plan route demonstrates the future enterprise workflow:
 
 This is currently a demo implementation, not a production clinical integration.
 
+## Hackathon Judge Path
+
+The landing page now includes a bottom-of-page judge path that presents the demo as one connected user journey. Use it to keep the first two minutes focused on the rubric: problem severity, meaningful AI, working software, and the platform wedge.
+
+Recommended flow:
+
+1. Start at `/` and click **Begin the child demo**.
+2. Create a child profile, choose a StarPal, and complete at least three Care Cards.
+3. Open the AI story and constellation moment.
+4. Open `/parent`; the parent gate answer is `7`.
+5. Show the calm recap, support controls, care-team notes, and staged AI drafts.
+6. Open `/care-plan`, import EMR items, generate AI drafts, and send drafts to parent review.
+7. Return to the landing page and use the bottom judge path section to summarize the story.
+
+See [StarPals Hackathon Judge Path](docs/01-product/demo-guide--hackathon-judge-path.md) for the full talk track, rubric mapping, AI before/after examples, and overclaim guardrails.
+
 ## Technical Architecture
 
 ### Stack
 
-| Layer | Technology |
-| --- | --- |
-| Runtime | Node.js 20.x |
-| App framework | TanStack Start |
-| UI framework | React 19 |
-| Routing | TanStack Router file-based routes |
-| Data fetching / server functions | TanStack React Query and TanStack Start server functions |
-| Build tool | Vite |
-| Styling | Tailwind CSS 4, custom theme tokens, CSS utilities |
-| UI primitives | Radix UI components |
-| Icons | lucide-react |
-| Forms and validation | react-hook-form, Zod |
-| AI story generation | Vercel AI SDK with OpenAI-compatible provider |
-| Deployment support | Vercel serverless entry, Node server, GitHub Pages static helper |
+| Layer                            | Technology                                                       |
+| -------------------------------- | ---------------------------------------------------------------- |
+| Runtime                          | Node.js 20.x                                                     |
+| App framework                    | TanStack Start                                                   |
+| UI framework                     | React 19                                                         |
+| Routing                          | TanStack Router file-based routes                                |
+| Data fetching / server functions | TanStack React Query and TanStack Start server functions         |
+| Build tool                       | Vite                                                             |
+| Styling                          | Tailwind CSS 4, custom theme tokens, CSS utilities               |
+| UI primitives                    | Radix UI components                                              |
+| Icons                            | lucide-react                                                     |
+| Forms and validation             | react-hook-form, Zod                                             |
+| AI story generation              | Vercel AI SDK with OpenAI-compatible provider                    |
+| Deployment support               | Vercel serverless entry, Node server, GitHub Pages static helper |
 
 ### State Model
 
@@ -230,16 +247,16 @@ See [docs/04-engineering/routing-conventions--tanstack-start.md](docs/04-enginee
 
 ### Build and Server Entrypoints
 
-| File | Role |
-| --- | --- |
-| `vite.config.ts` | TanStack Start, React, TS path aliases, and Tailwind Vite setup |
-| `src/client.tsx` | Browser entry |
-| `src/start.ts` | Start runtime entry |
-| `src/server.ts` | Server runtime entry |
-| `server.js` | Node HTTP wrapper for built server output |
-| `api/index.js` | Vercel serverless wrapper for the TanStack Start server output |
-| `scripts/generate-gh-pages-index.js` | Static index generator for GitHub Pages builds |
-| `vercel.json` | Vercel build, asset headers, and rewrites |
+| File                                 | Role                                                            |
+| ------------------------------------ | --------------------------------------------------------------- |
+| `vite.config.ts`                     | TanStack Start, React, TS path aliases, and Tailwind Vite setup |
+| `src/client.tsx`                     | Browser entry                                                   |
+| `src/start.ts`                       | Start runtime entry                                             |
+| `src/server.ts`                      | Server runtime entry                                            |
+| `server.js`                          | Node HTTP wrapper for built server output                       |
+| `api/index.js`                       | Vercel serverless wrapper for the TanStack Start server output  |
+| `scripts/generate-gh-pages-index.js` | Static index generator for GitHub Pages builds                  |
+| `vercel.json`                        | Vercel build, asset headers, and rewrites                       |
 
 ## Repository Structure
 
@@ -320,28 +337,28 @@ The app works without AI credentials because the story flow has a deterministic 
 
 Optional server-side variables:
 
-| Variable | Purpose |
-| --- | --- |
-| `AI_API_KEY` | Preferred API key for AI story generation |
-| `OPENAI_API_KEY` | Alternate API key fallback |
-| `AI_PROVIDER_BASE_URL` | Optional OpenAI-compatible API base URL |
-| `PORT` | Port used by `server.js` in production-style local runs |
+| Variable               | Purpose                                                 |
+| ---------------------- | ------------------------------------------------------- |
+| `AI_API_KEY`           | Preferred API key for AI story generation               |
+| `OPENAI_API_KEY`       | Alternate API key fallback                              |
+| `AI_PROVIDER_BASE_URL` | Optional OpenAI-compatible API base URL                 |
+| `PORT`                 | Port used by `server.js` in production-style local runs |
 
 Do not expose secrets with a `VITE_` prefix. Anything prefixed with `VITE_` is public browser config.
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the local Vite dev server |
-| `npm run build` | Build the TanStack Start app |
-| `npm run start` | Run the built app through `server.js` |
-| `npm run vercel-build` | Build and generate a root-based static client index |
-| `npm run build:dev` | Build in development mode |
+| Command                  | Description                                                            |
+| ------------------------ | ---------------------------------------------------------------------- |
+| `npm run dev`            | Start the local Vite dev server                                        |
+| `npm run build`          | Build the TanStack Start app                                           |
+| `npm run start`          | Run the built app through `server.js`                                  |
+| `npm run vercel-build`   | Build and generate a root-based static client index                    |
+| `npm run build:dev`      | Build in development mode                                              |
 | `npm run build:gh-pages` | Build and generate a GitHub Pages index using the repository base path |
-| `npm run preview` | Preview the Vite build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format the repository with Prettier |
+| `npm run preview`        | Preview the Vite build                                                 |
+| `npm run lint`           | Run ESLint                                                             |
+| `npm run format`         | Format the repository with Prettier                                    |
 
 ## Safety, Privacy, and Compliance Direction
 
@@ -358,27 +375,27 @@ StarPals is designed for a high-trust child health context. The current app is a
 
 ### Production Guardrails To Build
 
-| Area | Direction |
-| --- | --- |
-| Consent | Parent and guardian permission ledger for care plans, AI, devices, provider sharing, and research |
-| Privacy | COPPA-aware child data minimization, teen privacy policies, deletion requests, and limited disclosure |
-| Security | Encryption in transit and at rest, RBAC, tenant isolation, MFA/SSO, audit logging, secure SDLC |
-| HIPAA readiness | Business Associate Agreement workflow, access logs, incident response, vendor review, data export controls |
-| AI governance | Human approval before task activation, prompt/version logs, output validation, source provenance |
-| Clinical governance | No medical advice by default, clinician-approved templates, review queues, writeback controls |
-| Community safety | No open child chat, no public diagnosis disclosure, no follower graph, prewritten support only |
+| Area                | Direction                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Consent             | Parent and guardian permission ledger for care plans, AI, devices, provider sharing, and research          |
+| Privacy             | COPPA-aware child data minimization, teen privacy policies, deletion requests, and limited disclosure      |
+| Security            | Encryption in transit and at rest, RBAC, tenant isolation, MFA/SSO, audit logging, secure SDLC             |
+| HIPAA readiness     | Business Associate Agreement workflow, access logs, incident response, vendor review, data export controls |
+| AI governance       | Human approval before task activation, prompt/version logs, output validation, source provenance           |
+| Clinical governance | No medical advice by default, clinician-approved templates, review queues, writeback controls              |
+| Community safety    | No open child chat, no public diagnosis disclosure, no follower graph, prewritten support only             |
 
 ## Business Model
 
 The strongest business model is commercial core plus mission-aligned access programs.
 
-| Revenue stream | Buyer | Why it matters |
-| --- | --- | --- |
-| Hospital and clinic licensing | Children's hospitals, specialty clinics, complex care programs | Efficient distribution and workflow value |
-| Payer partnerships | Medicaid-focused programs, pediatric care management, value-based care groups | Engagement can connect to outcomes, retention, and reduced burden |
-| Sponsored condition pathways | Nonprofits, foundations, pharma support programs | Trust, education, content, and subsidized access |
-| B2C family subscription | Parents and caregivers | Engagement proof, parent pull, premium personalization |
-| SDK or white-label licensing | Digital health partners and care platforms | Lets StarPals become infrastructure for child-facing engagement |
+| Revenue stream                | Buyer                                                                         | Why it matters                                                    |
+| ----------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Hospital and clinic licensing | Children's hospitals, specialty clinics, complex care programs                | Efficient distribution and workflow value                         |
+| Payer partnerships            | Medicaid-focused programs, pediatric care management, value-based care groups | Engagement can connect to outcomes, retention, and reduced burden |
+| Sponsored condition pathways  | Nonprofits, foundations, pharma support programs                              | Trust, education, content, and subsidized access                  |
+| B2C family subscription       | Parents and caregivers                                                        | Engagement proof, parent pull, premium personalization            |
+| SDK or white-label licensing  | Digital health partners and care platforms                                    | Lets StarPals become infrastructure for child-facing engagement   |
 
 The direct-to-consumer path alone is likely too narrow for the full opportunity. The larger wedge is B2B2C: provider or program distribution with a product that children actually want to use.
 
@@ -502,15 +519,16 @@ All AI-created or AI-modified care tasks should stay inactive until approved by 
 
 Detailed strategy and planning docs live under `docs/`.
 
-| Document | Description |
-| --- | --- |
-| [Documentation Index](docs/README.md) | Folder structure and document naming convention |
-| [Product Requirements: Hackathon PRD v2](docs/01-product/product-requirements--hackathon-prd-v2.md) | Product vision, target users, goals, and demo requirements |
-| [Future User Journey: Clinical Platform](docs/01-product/user-journey--clinical-platform-future-state.md) | End-to-end journey from family onboarding through enterprise deployment |
-| [Business Analysis: YC Style](docs/02-research/business-analysis--yc-style.md) | Business thesis, market context, go-to-market, and financial outlook |
-| [Venture Analysis: Deep YC Style](docs/02-research/venture-analysis--deep-yc-style.md) | Extended venture-scale analysis and market sizing |
-| [Advanced Clinical Platform Backlog](docs/03-roadmap/backlog--advanced-clinical-platform.md) | Roadmap milestones, integrations, compliance, AI, and enterprise backlog |
-| [TanStack Start Routing Conventions](docs/04-engineering/routing-conventions--tanstack-start.md) | File-based route conventions for `src/routes` |
+| Document                                                                                                  | Description                                                                |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [Documentation Index](docs/README.md)                                                                     | Folder structure and document naming convention                            |
+| [Product Requirements: Hackathon PRD v2](docs/01-product/product-requirements--hackathon-prd-v2.md)       | Product vision, target users, goals, and demo requirements                 |
+| [Hackathon Judge Path](docs/01-product/demo-guide--hackathon-judge-path.md)                               | Live demo click path, talk track, rubric mapping, and overclaim guardrails |
+| [Future User Journey: Clinical Platform](docs/01-product/user-journey--clinical-platform-future-state.md) | End-to-end journey from family onboarding through enterprise deployment    |
+| [Business Analysis: YC Style](docs/02-research/business-analysis--yc-style.md)                            | Business thesis, market context, go-to-market, and financial outlook       |
+| [Venture Analysis: Deep YC Style](docs/02-research/venture-analysis--deep-yc-style.md)                    | Extended venture-scale analysis and market sizing                          |
+| [Advanced Clinical Platform Backlog](docs/03-roadmap/backlog--advanced-clinical-platform.md)              | Roadmap milestones, integrations, compliance, AI, and enterprise backlog   |
+| [TanStack Start Routing Conventions](docs/04-engineering/routing-conventions--tanstack-start.md)          | File-based route conventions for `src/routes`                              |
 
 ## Engineering Notes
 

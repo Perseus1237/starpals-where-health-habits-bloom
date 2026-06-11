@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProviderSnapshotRouteImport } from './routes/provider-snapshot'
 import { Route as ParentRouteImport } from './routes/parent'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as CarePlanRouteImport } from './routes/care-plan'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ProviderSnapshotRoute = ProviderSnapshotRouteImport.update({
+  id: '/provider-snapshot',
+  path: '/provider-snapshot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParentRoute = ParentRouteImport.update({
   id: '/parent',
   path: '/parent',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/parent': typeof ParentRoute
+  '/provider-snapshot': typeof ProviderSnapshotRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/parent': typeof ParentRoute
+  '/provider-snapshot': typeof ProviderSnapshotRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/parent': typeof ParentRoute
+  '/provider-snapshot': typeof ProviderSnapshotRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/care-plan' | '/home' | '/onboarding' | '/parent'
+  fullPaths:
+    | '/'
+    | '/care-plan'
+    | '/home'
+    | '/onboarding'
+    | '/parent'
+    | '/provider-snapshot'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/care-plan' | '/home' | '/onboarding' | '/parent'
-  id: '__root__' | '/' | '/care-plan' | '/home' | '/onboarding' | '/parent'
+  to:
+    | '/'
+    | '/care-plan'
+    | '/home'
+    | '/onboarding'
+    | '/parent'
+    | '/provider-snapshot'
+  id:
+    | '__root__'
+    | '/'
+    | '/care-plan'
+    | '/home'
+    | '/onboarding'
+    | '/parent'
+    | '/provider-snapshot'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +105,18 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   OnboardingRoute: typeof OnboardingRoute
   ParentRoute: typeof ParentRoute
+  ProviderSnapshotRoute: typeof ProviderSnapshotRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/provider-snapshot': {
+      id: '/provider-snapshot'
+      path: '/provider-snapshot'
+      fullPath: '/provider-snapshot'
+      preLoaderRoute: typeof ProviderSnapshotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parent': {
       id: '/parent'
       path: '/parent'
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   OnboardingRoute: OnboardingRoute,
   ParentRoute: ParentRoute,
+  ProviderSnapshotRoute: ProviderSnapshotRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

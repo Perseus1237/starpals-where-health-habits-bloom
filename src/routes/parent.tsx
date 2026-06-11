@@ -11,10 +11,11 @@ import {
   ShieldCheck,
   Sparkles,
   Users,
+  XCircle,
 } from "lucide-react";
 import { useStarPals } from "@/lib/starpals/store";
 import { CARE_CARDS } from "@/lib/starpals/data";
-import type { CareCardKey, PetState } from "@/lib/starpals/types";
+import type { CareCardKey, PetState, ReviewQuest, ReviewQuestStatus } from "@/lib/starpals/types";
 
 export const Route = createFileRoute("/parent")({
   head: () => ({ meta: [{ title: "Parent dashboard - StarPals" }] }),
@@ -79,26 +80,15 @@ const CARE_TEAM_NOTES = [
   },
 ];
 
-const AI_REVIEW_QUEUE = [
-  {
-    source: "Epic MyChart",
-    title: "Spacer practice quest",
-    detail: "AI matched medication instructions to a short, twice-weekly practice item.",
-  },
-  {
-    source: "Oracle Health",
-    title: "Indoor movement swap",
-    detail: "Low-energy and symptom notes become a parent-only suggestion first.",
-  },
-  {
-    source: "Wellness add-on",
-    title: "Sleep wind-down",
-    detail: "A gentle routine suggestion, separate from active clinical tasks.",
-  },
-];
-
 function Parent() {
-  const { pet, childName, kindnessSent } = useStarPals();
+  const {
+    pet,
+    childName,
+    reviewQuests,
+    completedReviewQuestIds,
+    approveReviewQuest,
+    rejectReviewQuest,
+  } = useStarPals();
   const [unlocked, setUnlocked] = useState(false);
   const [answer, setAnswer] = useState("");
   const [controls, setControls] = useState({
@@ -155,7 +145,6 @@ function Parent() {
   const displayChild = childName || "Maya";
   const usingSeed = !pet;
   const completed = displayPet.completed;
-  const kindnessCount = kindnessSent.length || 3;
   const moodLabel = completed.includes("mood") ? "Hopeful" : "Steady";
   const totalStardust = displayPet.stardust;
   const todaysCards = CARE_CARDS.slice(0, 4);
@@ -164,6 +153,8 @@ function Parent() {
   const completedLabels = todaysCards
     .filter((card) => completed.includes(card.key))
     .map((card) => card.label.toLowerCase());
+  const stagedCount = reviewQuests.filter((item) => item.status === "staged").length;
+  const approvedCount = reviewQuests.filter((item) => item.status === "approved").length;
 
   function toggleControl(key: keyof typeof controls) {
     setControls((current) => ({ ...current, [key]: !current[key] }));
@@ -231,8 +222,8 @@ function Parent() {
           <Metric icon={<HeartPulse className="h-5 w-5" />} label="Mood signal" value={moodLabel} />
           <Metric
             icon={<MessageCircle className="h-5 w-5" />}
-            label="Kindness sent"
-            value={kindnessCount}
+            label="Review queue"
+            value={`${stagedCount}/${reviewQuests.length}`}
           />
         </section>
 
@@ -369,40 +360,38 @@ function Parent() {
                 </div>
                 <div>
                   <div className="text-xs font-bold uppercase tracking-wider text-stardust">
-                    AI review
+                    Parent approval
                   </div>
-                  <h2 className="font-display text-xl">Staged drafts</h2>
+                  <h2 className="font-display text-xl">Staged AI and EMR quests</h2>
                 </div>
               </div>
 
               <div className="space-y-3">
-                {AI_REVIEW_QUEUE.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"
-                  >
-                    <div className="mb-1 flex items-center justify-between gap-3">
-                      <div className="font-display text-base leading-tight">{item.title}</div>
-                      <span className="shrink-0 rounded-full bg-stardust/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stardust">
-                        Review
-                      </span>
-                    </div>
-                    <div className="text-xs font-bold uppercase tracking-wider text-calm">
-                      {item.source}
-                    </div>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                      {item.detail}
-                    </p>
-                  </div>
+                {reviewQuests.map((item) => (
+                  <ReviewQuestCard
+                    key={item.id}
+                    item={item}
+                    petName={displayPet.name}
+                    completed={completedReviewQuestIds.includes(item.id)}
+                    onApprove={() => approveReviewQuest(item.id)}
+                    onReject={() => rejectReviewQuest(item.id)}
+                  />
                 ))}
               </div>
 
+              {approvedCount > 0 && (
+                <div className="mt-4 rounded-2xl border border-meadow/30 bg-meadow/10 px-4 py-3 text-sm text-meadow">
+                  {approvedCount} approved quest{approvedCount === 1 ? " is" : "s are"} now live in
+                  the child home list.
+                </div>
+              )}
+
               <Link
-                to="/care-plan"
+                to={pet ? "/home" : "/care-plan"}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-stardust px-4 py-3 text-sm font-bold text-primary-foreground transition hover:scale-[1.01]"
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden />
-                Open review queue
+                {pet ? "Open child quest list" : "Open care-plan builder"}
               </Link>
             </div>
 
@@ -435,11 +424,11 @@ function Parent() {
               </div>
 
               <Link
-                to="/care-plan"
+                to="/provider-snapshot"
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-calm px-4 py-3 text-sm font-bold text-primary-foreground transition hover:scale-[1.01]"
               >
                 <ShieldCheck className="h-4 w-4" aria-hidden />
-                Review care-plan builder
+                Care team snapshot
               </Link>
             </div>
 
@@ -529,4 +518,113 @@ function ControlToggle({
       </span>
     </label>
   );
+}
+
+function ReviewQuestCard({
+  item,
+  petName,
+  completed,
+  onApprove,
+  onReject,
+}: {
+  item: ReviewQuest;
+  petName: string;
+  completed: boolean;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  const childQuest = item.childQuest.replace(/\bLumi\b/g, petName);
+
+  return (
+    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-calm">{item.source}</div>
+          <h3 className="mt-1 font-display text-base leading-tight">{childQuest}</h3>
+        </div>
+        <span
+          className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${reviewStatusClass(item.status)}`}
+        >
+          {item.status === "staged" ? "Review" : item.status}
+        </span>
+      </div>
+
+      <div className="grid gap-2 text-xs">
+        <ReviewDetail label="Input" value={item.clinicalInstruction} />
+        <ReviewDetail label="AI draft" value={childQuest} tone="text-stardust" />
+        <div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-meadow">
+            Safety output
+          </div>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {item.safetyOutputs.map((output) => (
+              <span key={output} className="rounded-full bg-meadow/15 px-2 py-1 text-meadow">
+                {output}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.parentNote}</p>
+
+      {item.status === "staged" ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <button
+            onClick={onApprove}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-meadow px-3 py-2 text-sm font-bold text-primary-foreground transition hover:scale-[1.01]"
+          >
+            <CheckCircle2 className="h-4 w-4" aria-hidden />
+            Approve
+          </button>
+          <button
+            onClick={onReject}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3 py-2 text-sm font-bold text-muted-foreground transition hover:bg-white/10"
+          >
+            <XCircle className="h-4 w-4" aria-hidden />
+            Reject
+          </button>
+        </div>
+      ) : (
+        <div
+          className={`mt-3 rounded-2xl px-3 py-2 text-sm ${
+            item.status === "approved"
+              ? "border border-meadow/30 bg-meadow/10 text-meadow"
+              : "border border-white/10 bg-white/[0.04] text-muted-foreground"
+          }`}
+        >
+          {item.status === "approved"
+            ? completed
+              ? "Approved and completed in the child quest list."
+              : "Approved and now visible in the child quest list."
+            : "Rejected and hidden from the child quest list."}
+        </div>
+      )}
+    </article>
+  );
+}
+
+function ReviewDetail({
+  label,
+  value,
+  tone = "text-starlight",
+}: {
+  label: string;
+  value: string;
+  tone?: string;
+}) {
+  return (
+    <div>
+      <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <p className={`mt-0.5 leading-relaxed ${tone}`}>{value}</p>
+    </div>
+  );
+}
+
+function reviewStatusClass(status: ReviewQuestStatus) {
+  if (status === "approved") return "bg-meadow/20 text-meadow";
+  if (status === "rejected") return "bg-white/10 text-muted-foreground";
+  return "bg-stardust/20 text-stardust";
 }

@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import { Pet } from "@/components/starpals/Pet";
 import { useStarPals } from "@/lib/starpals/store";
+import {
+  AI_TRANSLATION_EXAMPLE,
+  COMPETITOR_COMPARISON,
+  HARD_TO_COPY,
+  MARKET_PROOF_POINTS,
+} from "@/lib/starpals/data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,6 +59,15 @@ const modules = [
     to: "/care-plan",
     link: "Open care plan",
     tone: "text-calm bg-calm/15",
+  },
+  {
+    icon: HeartPulse,
+    eyebrow: "Provider signal",
+    title: "Care Team Snapshot",
+    body: "Provider-ready weekly summaries show completion patterns, mood trends, recovered routines, parent context, and cited AI summaries.",
+    to: "/provider-snapshot",
+    link: "Open snapshot",
+    tone: "text-meadow bg-meadow/15",
   },
 ] as const;
 
@@ -186,6 +201,74 @@ const workflowSteps = [
   },
 ] as const;
 
+const judgeJourneySteps = [
+  {
+    title: "Open the child story",
+    action:
+      "Start with the child demo, choose a StarPal, and complete water, breathing, and medicine quests.",
+    proof:
+      "The product makes a repeated care routine feel like agency, story, and pet care instead of compliance.",
+  },
+  {
+    title: "Show the AI delight",
+    action:
+      "Unlock the story after two quests and point out that AI output is schema-checked, filtered, and has a deterministic fallback.",
+    proof:
+      "AI creates personalized motivation while safety rails keep medical language out of the child story.",
+  },
+  {
+    title: "Switch to the parent",
+    action:
+      "Open the parent dashboard, answer 7 at the grown-up gate, and show the calm recap, week view, and staged drafts.",
+    proof:
+      "Caregivers get visibility and support without turning home life into a surveillance feed.",
+  },
+  {
+    title: "Show care-plan translation",
+    action:
+      "Open the care-plan builder, import EMR items, generate AI drafts, then send them to parent review.",
+    proof:
+      "Clinical instructions become reviewable child-safe quests, with human approval before activation.",
+  },
+  {
+    title: "Show provider signal",
+    action:
+      "Open the Care Team Snapshot and show completion patterns, mood trend, parent note, cited summary, and writeback status.",
+    proof:
+      "StarPals creates provider-useful signal between visits without exposing child play details or unsafe medical advice.",
+  },
+  {
+    title: "End on the platform wedge",
+    action:
+      "Return to the landing page and summarize the path: care plan to quest, quest to engagement, engagement to provider-ready signal.",
+    proof:
+      "StarPals is a cross-condition pediatric engagement layer, not just a cute reminder app.",
+  },
+] as const;
+
+const judgeRubricCards = [
+  {
+    icon: HeartPulse,
+    title: "Demand reality",
+    body: "Kids with chronic care routines face daily repetition, parent conflict, isolation, and sparse between-visit clinical signal.",
+  },
+  {
+    icon: Sparkles,
+    title: "Meaningful AI",
+    body: "AI helps translate chart language into child-safe quests and creates personalized stories, while parent review and content filters stay in control.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Demo proof",
+    body: "The app builds, runs as a live web demo, and gives judges concrete child, parent, and care-team surfaces to inspect.",
+  },
+  {
+    icon: ClipboardList,
+    title: "Investable wedge",
+    body: "The same care-card engine can expand across asthma, diabetes, PT, oncology support, anxiety, ADHD, and post-discharge care.",
+  },
+] as const;
+
 const trustPillars = [
   "No diagnosis, prescribing, or emergency triage.",
   "No open child chat, public profiles, or follower graph.",
@@ -268,7 +351,7 @@ function Landing() {
       </section>
 
       <section className="relative z-10 px-5 pb-12 sm:px-8">
-        <div className="mx-auto grid max-w-6xl gap-4 md:grid-cols-3">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map((module) => {
             const Icon = module.icon;
             const target = module.to === "/onboarding" ? childTarget : module.to;
@@ -367,6 +450,75 @@ function Landing() {
                 <p className="text-sm leading-relaxed text-muted-foreground">{point}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.2em] text-stardust">
+                Evidence and market proof
+              </div>
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
+                A real care gap, not just a cute reminder.
+              </h2>
+              <div className="mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground">
+                <p>
+                  <span className="font-bold text-starlight">Target user:</span> children ages 7-13
+                  with recurring care routines.
+                </p>
+                <p>
+                  <span className="font-bold text-starlight">Parent pain:</span> reminders become
+                  conflict when adults have to be the daily alarm.
+                </p>
+                <p>
+                  <span className="font-bold text-starlight">Provider pain:</span> care teams have
+                  sparse between-visit signal and little context on home routines.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {MARKET_PROOF_POINTS.map((point) => (
+                  <div key={point.label} className="glass-card rounded-3xl p-5">
+                    <div className="font-display text-3xl text-stardust">{point.value}</div>
+                    <h3 className="mt-2 font-display text-lg leading-tight">{point.label}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {point.body}
+                    </p>
+                    <div className="mt-3 text-[10px] font-bold uppercase tracking-wider text-calm">
+                      {point.source}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="glass-card rounded-3xl p-5">
+                <div className="mb-4">
+                  <div className="text-xs font-bold uppercase tracking-wider text-calm">
+                    Competitor comparison
+                  </div>
+                  <h3 className="font-display text-2xl">
+                    StarPals combines engagement with workflow.
+                  </h3>
+                </div>
+                <div className="space-y-2">
+                  {COMPETITOR_COMPARISON.map((row) => (
+                    <div
+                      key={row.category}
+                      className="grid gap-2 rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm md:grid-cols-[0.8fr_1fr_1.2fr]"
+                    >
+                      <div className="font-display text-base leading-tight">{row.category}</div>
+                      <div className="text-muted-foreground">{row.example}</div>
+                      <div className="text-starlight/85">{row.gap}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -472,6 +624,37 @@ function Landing() {
                 <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
                   <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-meadow/15 text-meadow">
                     <CheckCircle2 className="h-5 w-5" aria-hidden />
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.2em] text-meadow">
+                Why this is hard to copy
+              </div>
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
+                The moat is the care workflow, not the pet art.
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+                A competitor can copy a checklist or mascot. The harder system is the child-safe
+                translation layer, consented caregiver controls, provider signal, and
+                cross-condition model working together.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {HARD_TO_COPY.map((item) => (
+                <div key={item} className="glass-card rounded-3xl p-5">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-meadow/15 text-meadow">
+                    <ShieldCheck className="h-5 w-5" aria-hidden />
                   </div>
                   <p className="text-sm leading-relaxed text-muted-foreground">{item}</p>
                 </div>
@@ -608,6 +791,149 @@ function Landing() {
             >
               Care plan builder
             </Link>
+            <Link
+              to="/provider-snapshot"
+              className="inline-flex items-center justify-center gap-2 rounded-full glass-card px-6 py-4 text-sm font-bold hover:bg-white/10"
+            >
+              Care Team Snapshot
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-5 pb-16 pt-4 sm:px-8">
+        <div className="mx-auto max-w-6xl rounded-[2rem] border border-stardust/25 bg-stardust/[0.06] p-6 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <div className="text-xs font-bold uppercase tracking-[0.2em] text-stardust">
+                Hackathon judge path
+              </div>
+              <h2 className="mt-3 font-display text-4xl leading-tight sm:text-5xl">
+                Run the demo as one care journey.
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+                Use this bottom-of-page guide when presenting. It keeps the first two minutes
+                focused on the rubric: real pain, meaningful AI, working software, and a platform
+                wedge.
+              </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {judgeRubricCards.map((card) => {
+                  const Icon = card.icon;
+
+                  return (
+                    <div
+                      key={card.title}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-stardust">
+                        <Icon className="h-5 w-5" aria-hidden />
+                      </div>
+                      <h3 className="font-display text-lg">{card.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        {card.body}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-calm">
+                      Click path
+                    </div>
+                    <h3 className="font-display text-2xl">Six beats to show</h3>
+                  </div>
+                  <Link
+                    to={childTarget}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full bg-stardust px-4 py-2 text-sm font-bold text-primary-foreground transition hover:scale-[1.02]"
+                  >
+                    Start
+                    <ArrowRight className="h-4 w-4" aria-hidden />
+                  </Link>
+                </div>
+
+                <div className="space-y-3">
+                  {judgeJourneySteps.map((step, index) => (
+                    <div
+                      key={step.title}
+                      className="rounded-2xl border border-white/10 bg-twilight/20 p-4"
+                    >
+                      <div className="flex gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stardust/15 font-display text-sm text-stardust">
+                          {index + 1}
+                        </div>
+                        <div>
+                          <h4 className="font-display text-lg leading-tight">{step.title}</h4>
+                          <p className="mt-1 text-sm leading-relaxed text-starlight">
+                            {step.action}
+                          </p>
+                          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-bold text-meadow">Proves:</span> {step.proof}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                <div className="mb-4">
+                  <div className="text-xs font-bold uppercase tracking-wider text-dawn">
+                    AI before and after
+                  </div>
+                  <h3 className="font-display text-2xl">
+                    Clinical instructions become safe child quests
+                  </h3>
+                </div>
+
+                <div className="grid gap-3 rounded-2xl bg-white/[0.04] p-4 text-sm md:grid-cols-[1fr_1fr_0.9fr]">
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      Input
+                    </div>
+                    <p className="mt-2 leading-relaxed text-starlight">
+                      {AI_TRANSLATION_EXAMPLE.input}
+                    </p>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-stardust">
+                      AI draft
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      {AI_TRANSLATION_EXAMPLE.aiDrafts.map((draft) => (
+                        <div
+                          key={draft}
+                          className="rounded-2xl border border-white/10 bg-twilight/20 px-3 py-2 text-starlight"
+                        >
+                          {draft}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-meadow">
+                      Safety output
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {AI_TRANSLATION_EXAMPLE.safetyOutputs.map((output) => (
+                        <span
+                          key={output}
+                          className="rounded-full bg-meadow/15 px-3 py-1.5 text-xs font-bold text-meadow"
+                        >
+                          {output}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

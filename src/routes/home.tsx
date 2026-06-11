@@ -9,6 +9,7 @@ import { CelebrationModal } from "@/components/starpals/CelebrationModal";
 import { CommunityQuest } from "@/components/starpals/CommunityQuest";
 import { MoodSky } from "@/components/starpals/MoodSky";
 import { StoryAdventure } from "@/components/starpals/StoryAdventure";
+import type { ReviewQuest } from "@/lib/starpals/types";
 
 export const Route = createFileRoute("/home")({
   head: () => ({ meta: [{ title: "Your StarPal's habitat" }] }),
@@ -16,7 +17,16 @@ export const Route = createFileRoute("/home")({
 });
 
 function Home() {
-  const { pet, childName, communityProgress, completeCare, reset } = useStarPals();
+  const {
+    pet,
+    childName,
+    communityProgress,
+    approvedQuests,
+    completedReviewQuestIds,
+    completeCare,
+    completeApprovedQuest,
+    reset,
+  } = useStarPals();
   const navigate = useNavigate();
   const [celebration, setCelebration] = useState<{ earned: number; msg: string } | null>(null);
   const [storyOpen, setStoryOpen] = useState(false);
@@ -27,13 +37,26 @@ function Home() {
   }, [pet, navigate]);
 
   const todaysCards = useMemo(() => CARE_CARDS.slice(0, 4), []);
-  const completedCount = pet?.completed.length ?? 0;
+  const approvedQuestCount = approvedQuests.length;
+  const completedApprovedQuestCount = approvedQuests.filter((quest) =>
+    completedReviewQuestIds.includes(quest.id),
+  ).length;
+  const completedCount = (pet?.completed.length ?? 0) + completedApprovedQuestCount;
+  const totalQuestCount = todaysCards.length + approvedQuestCount;
   const canStory = completedCount >= 2;
 
   if (!pet) return null;
 
   if (showConstellation) {
-    return <Constellation petName={pet.name} onReset={() => { reset(); navigate({ to: "/" }); }} />;
+    return (
+      <Constellation
+        petName={pet.name}
+        onReset={() => {
+          reset();
+          navigate({ to: "/" });
+        }}
+      />
+    );
   }
 
   return (
@@ -54,7 +77,10 @@ function Home() {
             👀 Parent
           </Link>
           <button
-            onClick={() => { reset(); navigate({ to: "/" }); }}
+            onClick={() => {
+              reset();
+              navigate({ to: "/" });
+            }}
             className="text-xs glass-card rounded-full px-3 py-1.5 hover:bg-white/10"
             title="Reset demo"
           >
@@ -68,7 +94,13 @@ function Home() {
         <div className="absolute top-3 right-3">
           <Stardust value={pet.stardust} />
         </div>
-        <Pet species={pet.species} stage={pet.evolutionStage} size={200} glow={pet.evolutionStage >= 1} bouncing />
+        <Pet
+          species={pet.species}
+          stage={pet.evolutionStage}
+          size={200}
+          glow={pet.evolutionStage >= 1}
+          bouncing
+        />
         <div className="font-display text-2xl mt-2">{pet.name}</div>
         <div className="text-sm text-muted-foreground">
           {pet.evolutionStage === 0 && "feels cozy and safe."}
@@ -81,7 +113,9 @@ function Home() {
       <div className="mb-4">
         <div className="flex items-baseline justify-between mb-2 px-1">
           <h2 className="font-display text-xl">Today's Quest</h2>
-          <span className="text-xs text-muted-foreground">{completedCount} / {todaysCards.length}</span>
+          <span className="text-xs text-muted-foreground">
+            {completedCount} / {totalQuestCount}
+          </span>
         </div>
         <div className="space-y-2">
           {todaysCards.map((card) => (
@@ -95,6 +129,27 @@ function Home() {
               }}
             />
           ))}
+
+          {approvedQuests.map((quest) => {
+            const done = completedReviewQuestIds.includes(quest.id);
+            return (
+              <ApprovedQuestCard
+                key={quest.id}
+                quest={quest}
+                petName={pet.name}
+                done={done}
+                onComplete={() => {
+                  const earned = completeApprovedQuest(quest.id);
+                  if (earned > 0) {
+                    setCelebration({
+                      earned,
+                      msg: "A parent-approved care quest joined today's constellation.",
+                    });
+                  }
+                }}
+              />
+            );
+          })}
         </div>
       </div>
 
@@ -122,11 +177,11 @@ function Home() {
           <div className="flex items-center gap-4">
             <div className="text-4xl animate-float">📖</div>
             <div className="flex-1">
-              <div className="font-display text-lg font-bold">
-                {pet.name} has a story for you
-              </div>
+              <div className="font-display text-lg font-bold">{pet.name} has a story for you</div>
               <div className="text-sm text-white/80">
-                {canStory ? "A personalized adventure, just for tonight." : "Complete 2 quests to unlock."}
+                {canStory
+                  ? "A personalized adventure, just for tonight."
+                  : "Complete 2 quests to unlock."}
               </div>
             </div>
             <div className="text-xl">→</div>
@@ -157,15 +212,67 @@ function Home() {
   );
 }
 
+function ApprovedQuestCard({
+  quest,
+  petName,
+  done,
+  onComplete,
+}: {
+  quest: ReviewQuest;
+  petName: string;
+  done: boolean;
+  onComplete: () => void;
+}) {
+  const childQuest = quest.childQuest.replace(/\bLumi\b/g, petName);
+
+  return (
+    <button
+      onClick={onComplete}
+      disabled={done}
+      className={`w-full rounded-3xl p-4 text-left transition-all ${
+        done
+          ? "bg-meadow/20 border border-meadow/30"
+          : "glass-card hover:scale-[1.01] hover:bg-white/10"
+      }`}
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl ${
+            done ? "bg-meadow/25" : "bg-stardust/15"
+          }`}
+        >
+          {done ? "✓" : "✨"}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="font-display text-lg leading-tight">{childQuest}</div>
+            <span className="rounded-full bg-calm/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-calm">
+              Parent approved
+            </span>
+          </div>
+          <div className="mt-1 text-sm text-muted-foreground">
+            {done ? "Your care team quest is complete." : "A grown-up added this to today."}
+          </div>
+        </div>
+        <div className="shrink-0 text-right">
+          <div className="font-bold text-stardust">+{quest.stardust}</div>
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">dust</div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function Constellation({ petName, onReset }: { petName: string; onReset: () => void }) {
   const stars = useMemo(
-    () => Array.from({ length: 80 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 1,
-      delay: Math.random() * 2,
-    })),
+    () =>
+      Array.from({ length: 80 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 2 + 1,
+        delay: Math.random() * 2,
+      })),
     [],
   );
 
@@ -195,15 +302,9 @@ function Constellation({ petName, onReset }: { petName: string; onReset: () => v
           <div className="absolute inset-0 rounded-full bg-stardust/40 blur-3xl animate-glow" />
         </div>
 
-        <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">
-          Every star counts.
-        </h1>
-        <p className="text-muted-foreground text-lg mb-2">
-          Welcome to the sky,
-        </p>
-        <p className="font-display text-2xl text-stardust mb-10">
-          {petName} ✦
-        </p>
+        <h1 className="font-display text-4xl sm:text-5xl mb-3 leading-tight">Every star counts.</h1>
+        <p className="text-muted-foreground text-lg mb-2">Welcome to the sky,</p>
+        <p className="font-display text-2xl text-stardust mb-10">{petName} ✦</p>
 
         <button onClick={onReset} className="btn-magical">
           Begin again

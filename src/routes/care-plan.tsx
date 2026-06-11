@@ -15,6 +15,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { useStarPals } from "@/lib/starpals/store";
+import { AI_TRANSLATION_EXAMPLE } from "@/lib/starpals/data";
 
 export const Route = createFileRoute("/care-plan")({
   head: () => ({ meta: [{ title: "Care plan builder - StarPals" }] }),
@@ -252,7 +253,7 @@ const INTEGRATIONS = [
 ];
 
 function CarePlan() {
-  const { pet, childName } = useStarPals();
+  const { pet, childName, reviewQuests, stageReviewQuests } = useStarPals();
   const [planName, setPlanName] = useState("Maya's summer stability plan");
   const [items, setItems] = useState<PlanItem[]>(SEEDED_PLAN);
   const [newTitle, setNewTitle] = useState("");
@@ -270,9 +271,10 @@ function CarePlan() {
     const review = items.filter((item) => item.status === "Needs review").length;
     const chart = items.filter((item) => CHART_SOURCES.includes(item.source as ChartSource)).length;
     const ai = items.filter((item) => item.source === "AI draft").length;
+    const staged = reviewQuests.filter((item) => item.status === "staged").length;
 
-    return { active, review, chart, ai };
-  }, [items]);
+    return { active, review, chart, ai, staged };
+  }, [items, reviewQuests]);
 
   function addPlanItem() {
     const trimmedTitle = newTitle.trim();
@@ -300,6 +302,7 @@ function CarePlan() {
   function importFromEmr() {
     if (imported) return;
     setItems((current) => [...current, ...EMR_IMPORT]);
+    stageReviewQuests(["ai-rescue-plan"]);
     setImported(true);
     setSent(false);
   }
@@ -307,6 +310,12 @@ function CarePlan() {
   function generateAiDrafts() {
     if (aiGenerated) return;
     setItems((current) => [...current, ...AI_DRAFTS]);
+    stageReviewQuests([
+      "ai-controller-medicine",
+      "ai-spacer-tool",
+      "ai-rescue-plan",
+      "ai-sleep-wind-down",
+    ]);
     setAiGenerated(true);
     setSent(false);
   }
@@ -315,6 +324,7 @@ function CarePlan() {
     setItems((current) =>
       current.map((item) => (item.status === "Draft" ? { ...item, status: "Needs review" } : item)),
     );
+    stageReviewQuests();
     setSent(true);
   }
 
@@ -348,6 +358,13 @@ function CarePlan() {
             >
               <ShieldCheck className="h-4 w-4" aria-hidden />
               Parent view
+            </Link>
+            <Link
+              to="/provider-snapshot"
+              className="inline-flex items-center gap-2 rounded-full glass-card px-3 py-2 text-xs font-bold hover:bg-white/10"
+            >
+              <ClipboardCheck className="h-4 w-4" aria-hidden />
+              Snapshot
             </Link>
           </div>
         </header>
@@ -406,7 +423,8 @@ function CarePlan() {
               {sent && (
                 <div className="mt-4 flex items-center gap-2 rounded-2xl border border-meadow/30 bg-meadow/10 px-4 py-3 text-sm text-meadow">
                   <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
-                  Draft steps are now staged for parent review in this demo.
+                  Draft steps are now staged for parent review. {summary.staged} item
+                  {summary.staged === 1 ? " is" : "s are"} waiting for approval.
                 </div>
               )}
             </div>
@@ -436,6 +454,47 @@ function CarePlan() {
                   <Sparkles className="h-4 w-4" aria-hidden />
                   {aiGenerated ? "AI draft ready" : "Generate AI draft"}
                 </button>
+              </div>
+
+              <div className="mb-4 grid gap-3 rounded-3xl border border-stardust/25 bg-stardust/[0.06] p-4 md:grid-cols-[1fr_1fr_0.9fr]">
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Input
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-starlight">
+                    {AI_TRANSLATION_EXAMPLE.input}
+                  </p>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-stardust">
+                    AI draft
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {AI_TRANSLATION_EXAMPLE.aiDrafts.map((draft) => (
+                      <div
+                        key={draft}
+                        className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-starlight"
+                      >
+                        {draft.replace(/\bLumi\b/g, petName)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-meadow">
+                    Safety output
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {AI_TRANSLATION_EXAMPLE.safetyOutputs.map((output) => (
+                      <span
+                        key={output}
+                        className="rounded-full bg-meadow/15 px-3 py-1.5 text-xs font-bold text-meadow"
+                      >
+                        {output}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="grid gap-3 md:grid-cols-3">
@@ -473,7 +532,7 @@ function CarePlan() {
                 <div className="mt-4 flex items-center gap-2 rounded-2xl border border-stardust/30 bg-stardust/10 px-4 py-3 text-sm text-stardust">
                   <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
                   AI drafted three review-only items, including wellness suggestions for sleep and
-                  high-pollen days.
+                  high-pollen days. The parent dashboard controls what reaches the child list.
                 </div>
               )}
             </div>
@@ -664,7 +723,7 @@ function PlanRow({ item, petName }: { item: PlanItem; petName: string }) {
       </div>
 
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
-        <Detail label="Child quest" value={`${petName}: ${item.childCue}`} />
+        <Detail label="Child quest" value={formatChildCue(item.childCue, petName)} />
         <Detail label="Owner" value={item.owner} />
         <Detail label="Next" value={item.next} />
       </div>
@@ -689,6 +748,10 @@ function Detail({ label, value }: { label: string; value: string }) {
       <div className="mt-0.5 leading-snug text-starlight">{value}</div>
     </div>
   );
+}
+
+function formatChildCue(childCue: string, petName: string) {
+  return childCue.replace(/\bLumi\b/g, petName);
 }
 
 function statusClass(status: PlanStatus) {

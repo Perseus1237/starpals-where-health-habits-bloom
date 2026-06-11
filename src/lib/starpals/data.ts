@@ -1,4 +1,4 @@
-import type { CareCard, KindnessTemplate, PetSpecies } from "./types";
+import type { CareCard, KindnessTemplate, PetSpecies, ReviewQuest } from "./types";
 
 export const CARE_CARDS: CareCard[] = [
   {
@@ -21,12 +21,12 @@ export const CARE_CARDS: CareCard[] = [
   },
   {
     key: "medicine",
-    label: "Take your medicine",
-    icon: "💊",
+    label: "Power up your StarPal",
+    icon: "⭐",
     stardust: 15,
     stat: "energy",
-    copy: "You're the hero of this story.",
-    doneCopy: "Brave move. Stardust pours in.",
+    copy: "Ask a grown-up when it is time.",
+    doneCopy: "A bright morning glow arrives.",
   },
   {
     key: "stretch",
@@ -106,6 +106,153 @@ export const COMMUNITY_QUEST = {
   baseProgress: 0.84,
   goal: 100000,
 };
+
+export const AI_TRANSLATION_EXAMPLE = {
+  input:
+    "Take controller medication every morning. Use spacer. Review rescue plan when symptoms worsen.",
+  aiDrafts: [
+    "Power up Lumi before breakfast",
+    "Practice the tiny breathing tool",
+    "Ask a grown-up for the bright-star plan",
+  ],
+  safetyOutputs: ["Dose hidden from child", "Parent approval required", "Medical advice blocked"],
+};
+
+export const SEEDED_REVIEW_QUESTS: ReviewQuest[] = [
+  {
+    id: "ai-controller-medicine",
+    source: "FHIR import",
+    clinicalInstruction: "Take controller medication every morning.",
+    aiDraft: "Power up Lumi before breakfast.",
+    childQuest: "Power up Lumi before breakfast.",
+    category: "medicine",
+    cadence: "Every morning before breakfast",
+    stardust: 15,
+    parentNote:
+      "Controller medication remains caregiver-facing; the child sees only a morning power-up.",
+    safetyOutputs: [
+      "Dose hidden from child",
+      "Parent approval required",
+      "No medication changes suggested",
+    ],
+    status: "staged",
+  },
+  {
+    id: "ai-spacer-tool",
+    source: "AI draft",
+    clinicalInstruction: "Use spacer.",
+    aiDraft: "Practice the tiny breathing tool.",
+    childQuest: "Practice the tiny breathing tool.",
+    category: "breathing",
+    cadence: "After the morning power-up, twice weekly",
+    stardust: 8,
+    parentNote: "Technique practice is framed as play and does not mention medication details.",
+    safetyOutputs: [
+      "Technique-only language",
+      "Parent approval required",
+      "No diagnosis or dosing exposed",
+    ],
+    status: "staged",
+  },
+  {
+    id: "ai-rescue-plan",
+    source: "Epic MyChart",
+    clinicalInstruction: "Review rescue plan when symptoms worsen.",
+    aiDraft: "Ask a grown-up for the bright-star plan.",
+    childQuest: "Ask a grown-up for the bright-star plan.",
+    category: "breathing",
+    cadence: "Only when symptoms feel bigger than usual",
+    stardust: 10,
+    parentNote: "The child prompt routes to an adult instead of giving symptom instructions.",
+    safetyOutputs: [
+      "Medical advice blocked",
+      "Parent action required",
+      "Emergency or triage language hidden from child",
+    ],
+    status: "staged",
+  },
+  {
+    id: "ai-sleep-wind-down",
+    source: "Oracle Health",
+    clinicalInstruction: "Support a consistent sleep routine on school nights.",
+    aiDraft: "Dim the stars and choose one calm story.",
+    childQuest: "Dim the stars and choose one calm story.",
+    category: "mood",
+    cadence: "Sunday through Thursday at bedtime",
+    stardust: 6,
+    parentNote: "Wellness add-on, separated from active clinical tasks.",
+    safetyOutputs: [
+      "Wellness suggestion labeled",
+      "Parent approval required",
+      "No clinical claim attached",
+    ],
+    status: "staged",
+  },
+];
+
+export const MARKET_PROOF_POINTS = [
+  {
+    value: "26.2%",
+    label: "U.S. children with a special health care need",
+    body: "HRSA NSCH 2022-2023 data anchors the demand reality at more than 19 million children.",
+    source: "StarPals venture analysis",
+  },
+  {
+    value: "50%+",
+    label: "Pediatric nonadherence is common",
+    body: "Pediatric psychology guidance says roughly half of children and more adolescents do not consistently follow chronic-care regimens.",
+    source: "StarPals business analysis",
+  },
+  {
+    value: "200+",
+    label: "Children's hospitals as a focused channel",
+    body: "The Children's Hospital Association creates a concentrated institutional starting point for pilots.",
+    source: "StarPals business analysis",
+  },
+  {
+    value: "7-13",
+    label: "Target age band",
+    body: "Old enough for habit loops and story agency, young enough that parent support and child-safe language matter.",
+    source: "Product wedge",
+  },
+];
+
+export const COMPETITOR_COMPARISON = [
+  {
+    category: "Adult reminders",
+    example: "Medication reminders and refill prompts",
+    gap: "Not child-native and weak on parent-child conflict.",
+  },
+  {
+    category: "Disease-specific apps",
+    example: "Condition education, trackers, and communities",
+    gap: "Useful but siloed by diagnosis and often not built around playful daily engagement.",
+  },
+  {
+    category: "Child wellness games",
+    example: "Emotion regulation or general well-being play",
+    gap: "Engaging, but rarely tied to care-plan provenance, approval, and provider signal.",
+  },
+  {
+    category: "Provider portals",
+    example: "Chart access, messages, after-visit summaries",
+    gap: "Clinically useful but not a child-facing habit loop.",
+  },
+  {
+    category: "StarPals",
+    example: "Child-safe quests plus caregiver and provider workflow",
+    gap: "Combines engagement, consent, approval, and between-visit signal.",
+  },
+];
+
+export const HARD_TO_COPY = [
+  "Child-safe quest translation layer",
+  "Parent approval and consent workflow",
+  "Privacy-preserving community mechanics",
+  "Cross-condition care-card model",
+  "Future FHIR/EMR integration path",
+  "Engagement data loop across child, parent, and provider",
+];
 
 export const FALLBACK_STORY = {
   cards: [
