@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "vercel-build": "npm run build && node scripts/generate-gh-pages-index.js dist/client /",
     "build:dev": "vite build --mode development",
     "build:gh-pages": "npm run build && node scripts/generate-gh-pages-index.js dist/client /starpals-where-health-habits-bloom",
     "preview": "vite preview",

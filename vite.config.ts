@@ -5,6 +5,14 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  base: "/starpals-where-health-habits-bloom/",
-  plugins: [tanstackStart(), react(), tsconfigPaths(), tailwindcss()],
+  // Use root base for Vercel static deployment
+  base: "/",
+  plugins: [
+    tanstackStart({
+      client: { entry: 'client' },
+    }),
+    react(),
+    tsconfigPaths(),
+    tailwindcss(),
+  ],
 });

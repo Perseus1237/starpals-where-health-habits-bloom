@@ -41,6 +41,7 @@ const html = `<!DOCTYPE html>
     <base href="${normalizedBaseHref}" />
   </head>
   <body>
+    <div id="root"></div>
     <script type="module" src="./assets/${entryFile}"></script>
   </body>
 </html>
