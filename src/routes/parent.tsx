@@ -57,16 +57,43 @@ const UPCOMING_PLAN = [
     title: "Mood and energy review",
     detail: "Weekly reflection shared with the care team.",
   },
+  {
+    time: "Needs approval",
+    title: "AI wellness suggestions",
+    detail: "Sleep wind-down and high-pollen movement swaps are staged for parent review.",
+  },
 ];
 
 const CARE_TEAM_NOTES = [
   {
     from: "Nurse Ava",
-    note: "The imported rescue-plan steps are staged for your review before they appear for Maya.",
+    note: "The Epic MyChart rescue-plan steps are staged for your review before they appear for Maya.",
   },
   {
     from: "Dr. Chen",
     note: "Maya's calm breathing streak is a useful signal. Keep it available as an as-needed quest.",
+  },
+  {
+    from: "StarPals AI",
+    note: "Oracle Health visit instructions were translated into child-safe language and held for approval.",
+  },
+];
+
+const AI_REVIEW_QUEUE = [
+  {
+    source: "Epic MyChart",
+    title: "Spacer practice quest",
+    detail: "AI matched medication instructions to a short, twice-weekly practice item.",
+  },
+  {
+    source: "Oracle Health",
+    title: "Indoor movement swap",
+    detail: "Low-energy and symptom notes become a parent-only suggestion first.",
+  },
+  {
+    source: "Wellness add-on",
+    title: "Sleep wind-down",
+    detail: "A gentle routine suggestion, separate from active clinical tasks.",
   },
 ];
 
@@ -78,6 +105,7 @@ function Parent() {
     bedtimeReminder: true,
     weeklyRecap: true,
     symptomNudge: false,
+    aiSuggestions: true,
   });
 
   if (!unlocked) {
@@ -149,11 +177,10 @@ function Parent() {
             <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Magic Mirror
             </div>
-            <h1 className="font-display text-3xl leading-tight sm:text-4xl">
-              Parent dashboard
-            </h1>
+            <h1 className="font-display text-3xl leading-tight sm:text-4xl">Parent dashboard</h1>
             <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              A calm, grown-up view of today's care, upcoming plan steps, and care-team updates for {displayChild}.
+              A calm, grown-up view of today's care, upcoming plan steps, and care-team updates for{" "}
+              {displayChild}.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -191,10 +218,22 @@ function Parent() {
         )}
 
         <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric icon={<Sparkles className="h-5 w-5" />} label="Stardust earned" value={totalStardust} />
-          <Metric icon={<CheckCircle2 className="h-5 w-5" />} label="Today's quests" value={`${completed.length}/${todaysCards.length}`} />
+          <Metric
+            icon={<Sparkles className="h-5 w-5" />}
+            label="Stardust earned"
+            value={totalStardust}
+          />
+          <Metric
+            icon={<CheckCircle2 className="h-5 w-5" />}
+            label="Today's quests"
+            value={`${completed.length}/${todaysCards.length}`}
+          />
           <Metric icon={<HeartPulse className="h-5 w-5" />} label="Mood signal" value={moodLabel} />
-          <Metric icon={<MessageCircle className="h-5 w-5" />} label="Kindness sent" value={kindnessCount} />
+          <Metric
+            icon={<MessageCircle className="h-5 w-5" />}
+            label="Kindness sent"
+            value={kindnessCount}
+          />
         </section>
 
         <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
@@ -209,7 +248,8 @@ function Parent() {
                     {displayChild} cared for {displayPet.name}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Completed {completedLabels.join(", ") || "the first care step"} with a {adherence}% plan completion signal.
+                    Completed {completedLabels.join(", ") || "the first care step"} with a{" "}
+                    {adherence}% plan completion signal.
                   </p>
                 </div>
                 <div className="rounded-2xl bg-meadow/15 px-4 py-3 text-center">
@@ -224,15 +264,22 @@ function Parent() {
                 {todaysCards.map((card) => {
                   const done = completed.includes(card.key);
                   return (
-                    <div key={card.key} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${done ? "bg-meadow/25 text-meadow" : "bg-white/10"}`}>
+                    <div
+                      key={card.key}
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+                    >
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-2xl ${done ? "bg-meadow/25 text-meadow" : "bg-white/10"}`}
+                      >
                         {done ? <CheckCircle2 className="h-5 w-5" aria-hidden /> : card.icon}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="font-display text-base leading-tight">{card.label}</div>
                         <div className="text-xs text-muted-foreground">{card.copy}</div>
                       </div>
-                      <div className={`text-xs font-bold ${done ? "text-meadow" : "text-muted-foreground"}`}>
+                      <div
+                        className={`text-xs font-bold ${done ? "text-meadow" : "text-muted-foreground"}`}
+                      >
                         {done ? "Done" : "Open"}
                       </div>
                     </div>
@@ -306,7 +353,57 @@ function Parent() {
                   body="Show a parent-only prompt when imported plan rules call for it."
                   onChange={() => toggleControl("symptomNudge")}
                 />
+                <ControlToggle
+                  checked={controls.aiSuggestions}
+                  label="AI wellness suggestions"
+                  body="Let StarPals stage sleep, hydration, and movement ideas for approval."
+                  onChange={() => toggleControl("aiSuggestions")}
+                />
               </div>
+            </div>
+
+            <div className="glass-card rounded-3xl p-5">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stardust/20 text-stardust">
+                  <Sparkles className="h-5 w-5" aria-hidden />
+                </div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-stardust">
+                    AI review
+                  </div>
+                  <h2 className="font-display text-xl">Staged drafts</h2>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {AI_REVIEW_QUEUE.map((item) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+                  >
+                    <div className="mb-1 flex items-center justify-between gap-3">
+                      <div className="font-display text-base leading-tight">{item.title}</div>
+                      <span className="shrink-0 rounded-full bg-stardust/15 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stardust">
+                        Review
+                      </span>
+                    </div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-calm">
+                      {item.source}
+                    </div>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {item.detail}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <Link
+                to="/care-plan"
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-stardust px-4 py-3 text-sm font-bold text-primary-foreground transition hover:scale-[1.01]"
+              >
+                <ShieldCheck className="h-4 w-4" aria-hidden />
+                Open review queue
+              </Link>
             </div>
 
             <div className="glass-card rounded-3xl p-5">
@@ -324,8 +421,13 @@ function Parent() {
 
               <div className="space-y-3">
                 {UPCOMING_PLAN.map((item) => (
-                  <div key={item.title} className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
-                    <div className="text-xs font-bold uppercase tracking-wider text-stardust">{item.time}</div>
+                  <div
+                    key={item.title}
+                    className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0"
+                  >
+                    <div className="text-xs font-bold uppercase tracking-wider text-stardust">
+                      {item.time}
+                    </div>
                     <div className="font-display text-base">{item.title}</div>
                     <p className="text-sm leading-relaxed text-muted-foreground">{item.detail}</p>
                   </div>
@@ -356,9 +458,14 @@ function Parent() {
 
               <div className="space-y-3">
                 {CARE_TEAM_NOTES.map((message) => (
-                  <div key={message.from} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                  <div
+                    key={message.from}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+                  >
                     <div className="font-display text-base">{message.from}</div>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{message.note}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {message.note}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -367,7 +474,8 @@ function Parent() {
         </div>
 
         <p className="mx-auto mt-6 max-w-2xl px-4 text-center text-xs leading-relaxed text-muted-foreground">
-          StarPals is not a medical device. Parents and care teams configure care plans, and child-facing quests stay simple, supportive, and parent-approved.
+          StarPals is not a medical device. Parents and care teams configure care plans, and
+          child-facing quests stay simple, supportive, and parent-approved.
         </p>
       </div>
     </main>

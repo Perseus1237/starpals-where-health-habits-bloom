@@ -22,7 +22,13 @@ export const Route = createFileRoute("/care-plan")({
 });
 
 type PlanCategory = "Medication" | "Hydration" | "Breathing" | "Movement" | "Mood";
-type PlanSource = "Care team" | "FHIR import" | "Parent preference";
+type PlanSource =
+  | "Care team"
+  | "FHIR import"
+  | "Epic MyChart"
+  | "Oracle Health"
+  | "AI draft"
+  | "Parent preference";
 type PlanStatus = "Active" | "Needs review" | "Draft";
 
 interface PlanItem {
@@ -37,6 +43,10 @@ interface PlanItem {
   status: PlanStatus;
   next: string;
 }
+
+type ChartSource = Extract<PlanSource, "FHIR import" | "Epic MyChart" | "Oracle Health">;
+
+const CHART_SOURCES: ChartSource[] = ["FHIR import", "Epic MyChart", "Oracle Health"];
 
 const CATEGORY_META: Record<PlanCategory, { icon: string; quest: string; tone: string }> = {
   Medication: {
@@ -125,7 +135,7 @@ const EMR_IMPORT: PlanItem[] = [
     cadence: "When yellow-zone symptoms appear",
     childCue: "Ask a grown-up for the bright-star plan.",
     owner: "Parent and care team",
-    source: "FHIR import",
+    source: "Epic MyChart",
     stardust: 10,
     status: "Needs review",
     next: "If symptoms change",
@@ -137,14 +147,88 @@ const EMR_IMPORT: PlanItem[] = [
     cadence: "On days marked low energy",
     childCue: "Choose a tiny stretch instead of a big quest.",
     owner: "Child with parent support",
-    source: "FHIR import",
+    source: "Oracle Health",
     stardust: 6,
     status: "Needs review",
     next: "Next low-energy check-in",
   },
 ];
 
+const AI_DRAFTS: PlanItem[] = [
+  {
+    id: "ai-spacer-practice",
+    title: "Practice spacer technique after controller medicine",
+    category: "Medication",
+    cadence: "Twice weekly after morning medicine",
+    childCue: "Help Lumi check the tiny breathing tool.",
+    owner: "AI draft for parent and care team review",
+    source: "AI draft",
+    stardust: 8,
+    status: "Needs review",
+    next: "After parent approval",
+  },
+  {
+    id: "ai-sleep-wind-down",
+    title: "Gentle sleep wind-down on school nights",
+    category: "Mood",
+    cadence: "Sunday through Thursday at bedtime",
+    childCue: "Dim the stars and choose one calm story.",
+    owner: "AI wellness suggestion",
+    source: "AI draft",
+    stardust: 6,
+    status: "Needs review",
+    next: "Tonight, 7:45 PM",
+  },
+  {
+    id: "ai-pollen-swap",
+    title: "Indoor movement swap on high-pollen days",
+    category: "Movement",
+    cadence: "When allergy or cough notes trend up",
+    childCue: "Pick a cozy stretch quest inside.",
+    owner: "AI wellness suggestion",
+    source: "AI draft",
+    stardust: 6,
+    status: "Needs review",
+    next: "Next flagged symptom day",
+  },
+];
+
+const CHART_SIGNALS = [
+  {
+    system: "Epic MyChart",
+    signal: "Medication list, asthma action plan, after-visit instructions",
+    output: "Matches controller and rescue-plan steps to friendly quests.",
+  },
+  {
+    system: "Oracle Health",
+    signal: "Problems, visit notes, care gaps, vitals trend",
+    output: "Finds safe routines and routes them to review first.",
+  },
+  {
+    system: "Parent context",
+    signal: "Bedtime rhythm, school-day patterns, child preferences",
+    output: "Suggests wellness add-ons that fit the family routine.",
+  },
+];
+
+const AI_AUTOMATIONS = [
+  "Normalize Epic and Oracle records into a FHIR care-plan workspace.",
+  "Extract goals, medications, review dates, and yellow-zone instructions.",
+  "Rewrite clinical language into short child-safe quests.",
+  "Flag wellness add-ons for parent and care-team approval.",
+];
+
 const INTEGRATIONS = [
+  {
+    name: "Epic MyChart",
+    status: "Demo connected",
+    detail: "Pulls patient-facing chart data through a SMART on FHIR flow.",
+  },
+  {
+    name: "Oracle Health",
+    status: "Demo connected",
+    detail: "Brings visit instructions, problems, and care gaps into the same review queue.",
+  },
   {
     name: "FHIR R4 CarePlan",
     status: "Sandbox connected",
@@ -161,9 +245,9 @@ const INTEGRATIONS = [
     detail: "Routes new care tasks to a parent before they reach the child view.",
   },
   {
-    name: "Child-safe mapping",
+    name: "AI child-safe mapping",
     status: "Active",
-    detail: "Turns clinical instructions into short quests and friendly cues.",
+    detail: "Turns chart language into short quests, then holds every draft for approval.",
   },
 ];
 
@@ -175,6 +259,7 @@ function CarePlan() {
   const [newCadence, setNewCadence] = useState("Every weekday after school");
   const [newCategory, setNewCategory] = useState<PlanCategory>("Movement");
   const [imported, setImported] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
   const [sent, setSent] = useState(false);
 
   const child = childName || "Maya";
@@ -183,10 +268,10 @@ function CarePlan() {
   const summary = useMemo(() => {
     const active = items.filter((item) => item.status === "Active").length;
     const review = items.filter((item) => item.status === "Needs review").length;
-    const emr = items.filter((item) => item.source === "FHIR import").length;
-    const stardust = items.reduce((total, item) => total + item.stardust, 0);
+    const chart = items.filter((item) => CHART_SOURCES.includes(item.source as ChartSource)).length;
+    const ai = items.filter((item) => item.source === "AI draft").length;
 
-    return { active, review, emr, stardust };
+    return { active, review, chart, ai };
   }, [items]);
 
   function addPlanItem() {
@@ -219,11 +304,16 @@ function CarePlan() {
     setSent(false);
   }
 
+  function generateAiDrafts() {
+    if (aiGenerated) return;
+    setItems((current) => [...current, ...AI_DRAFTS]);
+    setAiGenerated(true);
+    setSent(false);
+  }
+
   function sendForReview() {
     setItems((current) =>
-      current.map((item) =>
-        item.status === "Draft" ? { ...item, status: "Needs review" } : item,
-      ),
+      current.map((item) => (item.status === "Draft" ? { ...item, status: "Needs review" } : item)),
     );
     setSent(true);
   }
@@ -240,7 +330,8 @@ function CarePlan() {
               Dynamic care plan builder
             </h1>
             <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Build a simple care plan for {child}, translate it into StarPals quests, and preview EMR integration points before anything reaches the child experience.
+              Build a simple care plan for {child}, translate it into StarPals quests, and preview
+              EMR integration points before anything reaches the child experience.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -262,10 +353,18 @@ function CarePlan() {
         </header>
 
         <section className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Metric icon={<ClipboardCheck className="h-5 w-5" />} label="Active plan steps" value={summary.active} />
-          <Metric icon={<RefreshCw className="h-5 w-5" />} label="Needs review" value={summary.review} />
-          <Metric icon={<Link2 className="h-5 w-5" />} label="EMR-sourced items" value={summary.emr} />
-          <Metric icon={<Sparkles className="h-5 w-5" />} label="Possible stardust" value={summary.stardust} />
+          <Metric
+            icon={<ClipboardCheck className="h-5 w-5" />}
+            label="Active plan steps"
+            value={summary.active}
+          />
+          <Metric
+            icon={<RefreshCw className="h-5 w-5" />}
+            label="Review queue"
+            value={summary.review}
+          />
+          <Metric icon={<Link2 className="h-5 w-5" />} label="Chart-linked" value={summary.chart} />
+          <Metric icon={<Sparkles className="h-5 w-5" />} label="AI drafts" value={summary.ai} />
         </section>
 
         <div className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
@@ -308,6 +407,73 @@ function CarePlan() {
                 <div className="mt-4 flex items-center gap-2 rounded-2xl border border-meadow/30 bg-meadow/10 px-4 py-3 text-sm text-meadow">
                   <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
                   Draft steps are now staged for parent review in this demo.
+                </div>
+              )}
+            </div>
+
+            <div className="glass-card rounded-3xl p-5">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-stardust/20 text-stardust">
+                    <Sparkles className="h-5 w-5" aria-hidden />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold uppercase tracking-wider text-stardust">
+                      AI care-plan copilot
+                    </div>
+                    <h2 className="font-display text-xl">Chart-to-quest draft</h2>
+                    <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                      Epic MyChart and Oracle Health signals become parent-reviewable plan items,
+                      with wellness ideas kept separate from active medical steps.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={generateAiDrafts}
+                  disabled={aiGenerated}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-stardust px-4 py-2 text-sm font-bold text-primary-foreground transition hover:scale-[1.02] disabled:pointer-events-none disabled:opacity-50"
+                >
+                  <Sparkles className="h-4 w-4" aria-hidden />
+                  {aiGenerated ? "AI draft ready" : "Generate AI draft"}
+                </button>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-3">
+                {CHART_SIGNALS.map((signal) => (
+                  <div
+                    key={signal.system}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-3"
+                  >
+                    <div className="text-xs font-bold uppercase tracking-wider text-calm">
+                      {signal.system}
+                    </div>
+                    <div className="mt-1 text-sm font-bold leading-snug">{signal.signal}</div>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                      {signal.output}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {AI_AUTOMATIONS.map((automation, index) => (
+                  <div
+                    key={automation}
+                    className="flex gap-3 rounded-2xl bg-white/[0.04] p-3 text-sm"
+                  >
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stardust/15 text-xs font-bold text-stardust">
+                      {index + 1}
+                    </div>
+                    <div className="pt-0.5 text-muted-foreground">{automation}</div>
+                  </div>
+                ))}
+              </div>
+
+              {aiGenerated && (
+                <div className="mt-4 flex items-center gap-2 rounded-2xl border border-stardust/30 bg-stardust/10 px-4 py-3 text-sm text-stardust">
+                  <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
+                  AI drafted three review-only items, including wellness suggestions for sleep and
+                  high-pollen days.
                 </div>
               )}
             </div>
@@ -397,7 +563,10 @@ function CarePlan() {
 
               <div className="space-y-3">
                 {INTEGRATIONS.map((integration) => (
-                  <div key={integration.name} className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0">
+                  <div
+                    key={integration.name}
+                    className="border-b border-white/10 pb-3 last:border-b-0 last:pb-0"
+                  >
                     <div className="flex items-center justify-between gap-3">
                       <div className="font-display text-base">{integration.name}</div>
                       <span className="shrink-0 rounded-full bg-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stardust">
@@ -427,9 +596,9 @@ function CarePlan() {
 
               <div className="space-y-3 text-sm">
                 {[
-                  "Care manager drafts or imports plan items.",
-                  "Clinical language maps to friendly child quests.",
-                  "Parent reviews new tasks before activation.",
+                  "Care manager imports from Epic MyChart, Oracle Health, or FHIR.",
+                  "AI drafts friendly quests and optional wellness add-ons.",
+                  "Parent and care team approve every new task before activation.",
                   `${petName}'s habitat receives only today's simple quests.`,
                 ].map((step, index) => (
                   <div key={step} className="flex gap-3">
@@ -477,7 +646,9 @@ function PlanRow({ item, petName }: { item: PlanItem; petName: string }) {
     <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex gap-3">
-          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${meta.tone}`}>
+          <div
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${meta.tone}`}
+          >
             {meta.icon}
           </div>
           <div>
@@ -485,7 +656,9 @@ function PlanRow({ item, petName }: { item: PlanItem; petName: string }) {
             <div className="mt-1 text-sm text-muted-foreground">{item.cadence}</div>
           </div>
         </div>
-        <span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${statusClass(item.status)}`}>
+        <span
+          className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${statusClass(item.status)}`}
+        >
           {item.status}
         </span>
       </div>
